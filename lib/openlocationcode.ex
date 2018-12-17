@@ -74,8 +74,7 @@ defmodule OpenLocationCode do
     if digit_count == @separator_position and digit_count < code_length do
         code = code <> @separator
     end
-
-    IO.puts code 
+    
     encode_pairs(adj_latitude, adj_longitude, code_length, code, digit_count)    
   end
 
