@@ -38,6 +38,9 @@ defmodule OpenLocationCode do
 
       iex> OpenLocationCode.encode(20.375,2.775, 6)      
       "7FG49Q00+"
+
+      iex> OpenLocationCode.encode(20.3700625,2.7821875)
+      "7FG49QCJ+2V"      
     
   """
   def encode(latitude, longitude, code_length \\ @pair_code_length) do
@@ -58,18 +61,20 @@ defmodule OpenLocationCode do
                   |> floor                  
                   |> resolution_for_pos
       
-    {code, adj_latitude} = append_code(code, adj_latitude, place_value)
+    {ncode, adj_latitude} = append_code(code, adj_latitude, place_value)
     digit_count = digit_count + 1
     
-    {code, adj_longitude} = append_code(code, adj_longitude, place_value)
+    {ncode, adj_longitude} = append_code(ncode, adj_longitude, place_value)
     digit_count = digit_count + 1
 
     # Should we add a separator here?
-    if digit_count == @separator_position and digit_count < code_length do
-        code = code <> @separator
+    ncode = if digit_count == @separator_position and digit_count < code_length do
+      ncode <> @separator
+    else 
+      ncode        
     end
     
-    encode_pairs(adj_latitude, adj_longitude, code_length, code, digit_count)    
+    encode_pairs(adj_latitude, adj_longitude, code_length, ncode, digit_count)    
   end
 
   defp append_code(code, adj_coord, place_value) do
@@ -97,7 +102,7 @@ defmodule OpenLocationCode do
     if String.length(code) == @separator_position do
       code <> @separator
     else 
-      code <> @separator  
+      code
     end    
   end
   
