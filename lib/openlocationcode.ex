@@ -54,20 +54,14 @@ defmodule OpenLocationCode do
   end
 
   defp encode_pairs(adj_latitude, adj_longitude, code_length, code, digit_count) when digit_count < code_length do
-    place_value = Enum.at(@pair_resolutions, Kernel.trunc(:math.floor(digit_count / 2)))
-    
-    digit_value = Kernel.trunc(:math.floor(adj_latitude / place_value))
-    adj_latitude = adj_latitude - (digit_value * place_value)
-
-    code = code <> String.at(@code_alphabet, digit_value) # lat pair code
-
+    place_value = (digit_count / 2)
+                  |> floor                  
+                  |> resolution_for_pos
+      
+    {code, adj_latitude} = append_code(code, adj_latitude, place_value)
     digit_count = digit_count + 1
-
-    digit_value = Kernel.trunc(:math.floor(adj_longitude / place_value))
-    adj_longitude = adj_longitude - (digit_value * place_value)
     
-    code = code <> String.at(@code_alphabet, digit_value) # long pair code 
-
+    {code, adj_longitude} = append_code(code, adj_longitude, place_value)
     digit_count = digit_count + 1
 
     # Should we add a separator here?
@@ -78,22 +72,43 @@ defmodule OpenLocationCode do
     encode_pairs(adj_latitude, adj_longitude, code_length, code, digit_count)    
   end
 
+  defp append_code(code, adj_coord, place_value) do
+    digit_value = floor(adj_coord / place_value)
+    adj_coord = adj_coord - (digit_value * place_value)
+    code = code <> String.at(@code_alphabet, digit_value)
+    { code, adj_coord }
+  end  
+
   defp encode_pairs(latitude, longitude, code_length, code, digit_count) when digit_count == code_length do   
-    ncode =
-      if String.length(code) < @separator_position do      
-        String.pad_trailing(code, @separator_position, @padding)
-      else
-        code 
-      end
-    ncode = if String.length(ncode) == @separator_position do
-      ncode <> @separator
-    else 
-      ncode
-    end   
-    ncode 
+    code 
+      |> pad_trailing 
+      |> ensure_separator
   end 
 
+  defp pad_trailing(code) do   
+    if String.length(code) < @separator_position do
+      String.pad_trailing(code, @separator_position, @padding)      
+    else
+      code
+    end    
+  end  
+
+  defp ensure_separator(code) do 
+    if String.length(code) == @separator_position do
+      code <> @separator
+    else 
+      code <> @separator  
+    end    
+  end
   
+  defp floor(num) when is_number(num) do 
+    Kernel.trunc(:math.floor(num))
+  end 
+
+  defp resolution_for_pos(position) do
+    Enum.at(@pair_resolutions, position)
+  end
+
   defp clip_latitude(latitude) do
     Kernel.min(90, Kernel.max(-90, latitude))
   end
