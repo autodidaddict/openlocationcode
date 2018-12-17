@@ -1,4 +1,5 @@
 # Open Location Code
+[![Build Status](https://travis-ci.org/autodidaddict/openlocationcode.svg?branch=master)](https://travis-ci.org/autodidaddict/openlocationcode)
 
 Elixir implementation of Open Location Code ("plus codes")
 
