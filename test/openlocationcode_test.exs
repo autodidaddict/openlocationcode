@@ -16,9 +16,37 @@ defmodule OpenlocationcodeTest do
 
     #assert OpenLocationCode.encode(1,180, 4) === "62H20000+"
     #assert OpenLocationCode.encode(1,181, 4) === "62H20000+"
-    
+
     assert OpenLocationCode.encode(90,1) === "CFX3X2X2+X2"
     assert OpenLocationCode.encode(1.2,3.4) === "6FH56C22+22"
   end
+
+  test "decode standard cases from CSV" do    
+    %OpenLocationCode.CodeArea{south_latitude: sl, west_longitude: wl,
+          lat_resolution: latres,
+          long_resolution: longres} = OpenLocationCode.decode("4VCPPQGP+Q9")
+    assert sl === -41.273125    
+    assert wl === 174.785875
+    assert latres === 0.000125
+    assert longres === 0.000125       
+    
+    %OpenLocationCode.CodeArea{south_latitude: sl, west_longitude: wl,
+        lat_resolution: latres,
+        long_resolution: longres} = OpenLocationCode.decode("7FG49Q00+")
+
+    assert sl === 20.35
+    assert wl === 2.75
+    assert latres === 0.05
+    assert longres === 0.05
+
+    %OpenLocationCode.CodeArea{south_latitude: sl, west_longitude: wl,
+      lat_resolution: latres,
+      long_resolution: longres} = OpenLocationCode.decode("8FVC2222+22")
+
+    assert sl === 47.0
+    assert wl === 8.0
+    assert latres === 0.000125
+    assert longres === 0.000125
+  end 
   
 end
