@@ -1,12 +1,13 @@
 # Open Location Code
 [![Build Status](https://travis-ci.org/autodidaddict/openlocationcode.svg?branch=master)](https://travis-ci.org/autodidaddict/openlocationcode)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 Elixir implementation of Open Location Code ("plus codes")
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `openlocationcode` to your list of dependencies in `mix.exs`:
+This package can be installed by adding `openlocationcode` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -16,7 +17,5 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/openlocationcode](https://hexdocs.pm/openlocationcode).
+Documentation for this library can be found at [https://hexdocs.pm/openlocationcode](https://hexdocs.pm/openlocationcode).
 
