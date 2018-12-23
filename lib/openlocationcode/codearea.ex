@@ -2,11 +2,11 @@ defmodule OpenLocationCode.CodeArea do
     @moduledoc """
     A code area is a region on a map indicated by a lower-left corner---the southernmost latitude and 
     the westernmost longitude. The size of the region is given by the resolution, which is the height 
-    of the region from the south in degrees, and the length of the region from the west in degrees.
+    and length of the region in degrees.
     """
 
     @doc """
-    Structure representing a code area
+    Structure representing a code area.
     """
     defstruct south_latitude: 0.0, 
               west_longitude: 0.0, 

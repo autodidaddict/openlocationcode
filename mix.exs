@@ -9,22 +9,22 @@ defmodule OpenLocationCode.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      description: description()
+      description: description()     
     ]
   end
 
   defp description do 
     """
-    Library for encoding and decoding Open Location Codes (aka Plus codes)
+    Library for encoding and decoding Open Location Codes (Plus Codes)
     """
   end
 
   defp package do
-    [
-      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+    [      
       maintainers: ["Kevin Hoffman"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/autodidaddict/openlocationcode"}
+      links: %{"GitHub" => "https://github.com/autodidaddict/openlocationcode"},
+      source_url: "https://github.com/autodidaddict/openlocationcode"
     ]
   end
 
