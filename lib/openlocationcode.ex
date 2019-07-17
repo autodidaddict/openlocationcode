@@ -14,9 +14,9 @@ defmodule OpenLocationCode do
   @pair_resolutions  [20.0, 1.0, 0.05, 0.0025, 0.000125]
 
 
-  
+
   @moduledoc """
-  Open Location Code (OLC) is a geocoding system for identifying an area anywhere on planet Earth. Originally developed in 
+  Open Location Code (OLC) is a geocoding system for identifying an area anywhere on planet Earth. Originally developed in
   2014, OLCs are also called "plus codes". Nearby locations have similar codes, and they can be encoded and decoded offline.
   As blocks are refined to a smaller and smaller area, the number of trailing zeros in a plus code will shrink.
 
@@ -25,8 +25,8 @@ defmodule OpenLocationCode do
   There are two main functions in this module--encoding and decoding.
 
   """
-  
-  @doc """ 
+
+  @doc """
   Encodes a location into an Open Location Code string.
 
   Produces a code of the specified length, or the default length if no length
@@ -35,17 +35,17 @@ defmodule OpenLocationCode do
   codes represent smaller areas, but lengths > 14 refer to areas smaller than the accuracy of
   most devices.
 
-  Latitude is in signed decimal degrees and will be clipped to the range -90 to 90. Longitude 
+  Latitude is in signed decimal degrees and will be clipped to the range -90 to 90. Longitude
   is in signed decimal degrees and will be clipped to the range -180 to 180.
-    
+
   ## Examples
 
-      iex> OpenLocationCode.encode(20.375,2.775, 6)      
+      iex> OpenLocationCode.encode(20.375,2.775, 6)
       "7FG49Q00+"
 
       iex> OpenLocationCode.encode(20.3700625,2.7821875)
-      "7FG49QCJ+2V"      
-    
+      "7FG49QCJ+2V"
+
   """
   def encode(latitude, longitude, code_length \\ @pair_code_length) do
     latitude = clip_latitude(latitude)
@@ -53,8 +53,8 @@ defmodule OpenLocationCode do
     latitude = if latitude == 90 do
       latitude - precision_by_length(code_length)
     else
-      latitude 
-    end    
+      latitude
+    end
 
     encode_pairs(latitude + @latitude_max, longitude + @longitude_max, code_length, "", 0)
 
@@ -62,23 +62,23 @@ defmodule OpenLocationCode do
 
   @doc """
   Decodes a code string into an `OpenLocationCode.CodeArea` struct
-    
-  ## Examples 
+
+  ## Examples
 
       iex> OpenLocationCode.decode("6PH57VP3+PR")
-      %OpenLocationCode.CodeArea{lat_resolution: 1.25e-4, 
-          long_resolution: 1.25e-4, 
-          south_latitude: 1.2867499999999998, 
+      %OpenLocationCode.CodeArea{lat_resolution: 1.25e-4,
+          long_resolution: 1.25e-4,
+          south_latitude: 1.2867499999999998,
           west_longitude: 103.85449999999999}
 
   """
-  def decode(olcstring) do 
+  def decode(olcstring) do
     code = clean_code(olcstring)
 
     {south_lat, west_long, lat_res, long_res} = decode_location(code)
-    %OpenLocationCode.CodeArea{south_latitude: south_lat, 
-              west_longitude: west_long, 
-              lat_resolution: lat_res, 
+    %OpenLocationCode.CodeArea{south_latitude: south_lat,
+              west_longitude: west_long,
+              lat_resolution: lat_res,
               long_resolution: long_res}
   end
 
@@ -86,57 +86,53 @@ defmodule OpenLocationCode do
   # Codec functions
   defp encode_pairs(adj_latitude, adj_longitude, code_length, code, digit_count) when digit_count < code_length do
     place_value = (digit_count / 2)
-                  |> floor                  
+                  |> floor
                   |> resolution_for_pos
-      
+
     {ncode, adj_latitude} = append_code(code, adj_latitude, place_value)
     digit_count = digit_count + 1
-    
+
     {ncode, adj_longitude} = append_code(ncode, adj_longitude, place_value)
     digit_count = digit_count + 1
 
     # Should we add a separator here?
     ncode = if digit_count == @separator_position and digit_count < code_length do
       ncode <> @separator
-    else 
-      ncode        
+    else
+      ncode
     end
-    
-    encode_pairs(adj_latitude, adj_longitude, code_length, ncode, digit_count)    
+
+    encode_pairs(adj_latitude, adj_longitude, code_length, ncode, digit_count)
   end
 
-  defp encode_pairs(_, _, code_length, code, digit_count) when digit_count == code_length do   
-    code 
-      |> pad_trailing 
+  defp encode_pairs(_, _, code_length, code, digit_count) when digit_count == code_length do
+    code
+      |> pad_trailing
       |> ensure_separator
-  end 
+  end
 
   defp append_code(code, adj_coord, place_value) do
     digit_value = floor(adj_coord / place_value)
     adj_coord = adj_coord - (digit_value * place_value)
     code = code <> String.at(@code_alphabet, digit_value)
     { code, adj_coord }
-  end            
+  end
 
-  defp pad_trailing(code) do   
+  defp pad_trailing(code) do
     if String.length(code) < @separator_position do
-      String.pad_trailing(code, @separator_position, @padding)      
+      String.pad_trailing(code, @separator_position, @padding)
     else
       code
-    end    
-  end  
+    end
+  end
 
-  defp ensure_separator(code) do 
+  defp ensure_separator(code) do
     if String.length(code) == @separator_position do
       code <> @separator
-    else 
+    else
       code
-    end    
+    end
   end
-  
-  defp floor(num) when is_number(num) do 
-    Kernel.trunc(:math.floor(num))
-  end 
 
   defp resolution_for_pos(position) do
     Enum.at(@pair_resolutions, position)
@@ -154,28 +150,28 @@ defmodule OpenLocationCode do
     end
   end
 
-  defp precision_by_length(code_length) do      
+  defp precision_by_length(code_length) do
       if code_length <= @pair_code_length do
         :math.pow(20, (div(code_length,-2)) + 2)
       else
         :math.pow(20,-3) / (:math.pow(5,(code_length - @pair_code_length)))
-      end            
+      end
   end
 
-  defp clean_code(code) do 
+  defp clean_code(code) do
     code |> String.replace(@separator, "") |> String.replace_trailing(@padding, "")
-  end      
+  end
 
   defp decode_location(code) do
       _decode_location(0, code, String.length(code), -90.0, -180.0, 400.0, 400.0)
   end
 
   defp _decode_location(digit, code, code_length, south_lat, west_long, lat_res, long_res) when digit < code_length do
-    code_at_digit = String.at(code, digit)        
+    code_at_digit = String.at(code, digit)
 
     if digit < @pair_code_length do
         code_at_digit1 = String.at(code, digit+1)
-        lat_res = lat_res / 20 
+        lat_res = lat_res / 20
         long_res = long_res / 20
         south_lat = south_lat + (lat_res * index_of_codechar(code_at_digit))
         west_long = west_long + (long_res * index_of_codechar(code_at_digit1))
@@ -183,22 +179,22 @@ defmodule OpenLocationCode do
     else
         lat_res = lat_res / 5
         long_res = long_res / 4
-        row = index_of_codechar(code_at_digit) / 4 
+        row = index_of_codechar(code_at_digit) / 4
         col = rem(index_of_codechar(code_at_digit), 4)
         south_lat = south_lat + (lat_res * row)
         west_long = west_long + (long_res * col)
         _decode_location(digit + 1, code, code_length, south_lat, west_long, lat_res, long_res)
     end
-      
+
   end
 
-  defp _decode_location(digit, _, code_length, south_lat, west_long, lat_res, long_res) when digit == code_length do 
+  defp _decode_location(digit, _, code_length, south_lat, west_long, lat_res, long_res) when digit == code_length do
     {south_lat, west_long, lat_res, long_res}
-  end 
+  end
 
-  defp index_of_codechar(codechar) do 
+  defp index_of_codechar(codechar) do
     {index, _} = :binary.match(@code_alphabet, codechar)
-    index 
-  end 
+    index
+  end
 
-end 
+end

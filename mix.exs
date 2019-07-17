@@ -4,23 +4,23 @@ defmodule OpenLocationCode.MixProject do
   def project do
     [
       app: :openlocationcode,
-      version: "0.1.0",
-      elixir: "~> 1.7",
+      version: "0.1.1",
+      elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      description: description()     
+      description: description()
     ]
   end
 
-  defp description do 
+  defp description do
     """
     Library for encoding and decoding Open Location Codes (Plus Codes)
     """
   end
 
   defp package do
-    [      
+    [
       maintainers: ["Kevin Hoffman"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/autodidaddict/openlocationcode"},
